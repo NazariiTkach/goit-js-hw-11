@@ -35,6 +35,7 @@ btnSearch.addEventListener('click', e => {
   }
 });
 
+
 btnLoadMore.addEventListener('click', () => {
   pageNumber++;
   const trimmedValue = input.value.trim();
@@ -61,7 +62,7 @@ function renderImageList(images) {
       console.log('img', image);
       return `<div class="photo-card">
 
-       <a href="${image.largeImageURL}"><img class="photo" src="${image.webformatURL}" alt="${image.tags}" title="${image.tags}" loading="lazy"/></a>
+       <a class="gallery__item" href="${image.largeImageURL}"><img class="photo" src="${image.webformatURL}" alt="${image.tags}" title="${image.tags}" loading="lazy"/></a>
 
         <div class="info">
            <p class="info-item">
@@ -80,7 +81,8 @@ function renderImageList(images) {
     </div>`;
     })
     .join('');
-  gallery.innerHTML += markup;
+  gallery.insertAdjacentHTML("beforeend", markup);
+  
 }
 
 function cleanGallery() {
@@ -88,3 +90,5 @@ function cleanGallery() {
   pageNumber = 1;
   btnLoadMore.style.display = 'none';
 }
+
+
