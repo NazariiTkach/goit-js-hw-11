@@ -13,46 +13,48 @@ btnLoadMore.style.display = 'none';
 
 let pageNumber = 1;
 
-btnSearch.addEventListener('click', e => {
-  e.preventDefault();
-  cleanGallery();
-  const trimmedValue = input.value.trim();
-  if (trimmedValue !== '') {
-    fetchImages(trimmedValue, pageNumber).then(foundData => {
-      if (foundData.hits.length === 0) {
-        Notiflix.Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-      } else {
-        renderImageList(foundData.hits);
-        Notiflix.Notify.success(
-          `Hooray! We found ${foundData.totalHits} images.`
-        );
-        btnLoadMore.style.display = 'block';
-        gallerySimpleLightbox.refresh();
-      }
-    });
-  }
-});
-
-
-btnLoadMore.addEventListener('click', () => {
-  pageNumber++;
-  const trimmedValue = input.value.trim();
-  btnLoadMore.style.display = 'none';
+function getImg(trimmedValue, pageNumber) {
   fetchImages(trimmedValue, pageNumber).then(foundData => {
     if (foundData.hits.length === 0) {
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
-    } else {
-      renderImageList(foundData.hits);
+      return;
+    }
+    if (pageNumber === 1) {
       Notiflix.Notify.success(
         `Hooray! We found ${foundData.totalHits} images.`
       );
-      btnLoadMore.style.display = 'block';
     }
+
+    renderImageList(foundData.hits);
+    if (Math.ceil(foundData.totalHits / 40) === pageNumber) {
+      Notiflix.Notify.failure(
+        "We're sorry, but you've reached the end of search results."
+      );
+      btnLoadMore.style.display = 'none';
+      return;
+    }
+
+    btnLoadMore.style.display = 'block';
+    pageNumber += 1;
+    gallerySimpleLightbox.refresh();
   });
+}
+
+btnSearch.addEventListener('click', e => {
+  e.preventDefault();
+  cleanGallery();
+  const trimmedValue = input.value.trim();
+  if (trimmedValue !== '') {
+    getImg(trimmedValue, pageNumber);
+  }
+});
+
+btnLoadMore.addEventListener('click', () => {
+  pageNumber++;
+  const trimmedValue = input.value.trim();
+  getImg(trimmedValue, pageNumber);
 });
 
 function renderImageList(images) {
@@ -81,8 +83,7 @@ function renderImageList(images) {
     </div>`;
     })
     .join('');
-  gallery.insertAdjacentHTML("beforeend", markup);
-  
+  gallery.insertAdjacentHTML('beforeend', markup);
 }
 
 function cleanGallery() {
@@ -90,5 +91,3 @@ function cleanGallery() {
   pageNumber = 1;
   btnLoadMore.style.display = 'none';
 }
-
-
